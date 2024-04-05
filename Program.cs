@@ -2,9 +2,12 @@ using ECommerceAppBackend.Controllers;
 using ECommerceAppBackend.Data;
 using ECommerceAppBackend.Repositories.Items;
 using ECommerceAppBackend.Repositories.User;
+using ECommerceAppBackend.Services.EmailSender;
 using ECommerceAppBackend.Services.Register;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
-var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -16,13 +19,14 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<RegisterService>();
 builder.Services.AddScoped<PasswordService>();
 builder.Services.AddScoped<RegisterController>();
+builder.Services.AddTransient<EmailSender>();
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication("Bearer").AddJwtBearer();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
-        policy  =>
-        {
-            policy.WithOrigins("http://localhost:3000");
-        });
+        policy => { policy.WithOrigins("http://localhost:3000"); });
 });
 // Default added services
 builder.Services.AddControllers();
