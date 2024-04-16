@@ -1,10 +1,13 @@
+using System.Text;
 using ECommerceAppBackend.Controllers;
 using ECommerceAppBackend.Data;
 using ECommerceAppBackend.Repositories.Items;
 using ECommerceAppBackend.Repositories.User;
 using ECommerceAppBackend.Services.EmailSender;
 using ECommerceAppBackend.Services.Register;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.IdentityModel.Tokens;
 
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -21,8 +24,19 @@ builder.Services.AddScoped<PasswordService>();
 builder.Services.AddScoped<RegisterController>();
 builder.Services.AddTransient<EmailSender>();
 builder.Services.AddAuthorization();
-builder.Services.AddAuthentication("Bearer").AddJwtBearer();
-
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+    };
+});
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,

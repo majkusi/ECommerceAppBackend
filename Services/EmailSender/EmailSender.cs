@@ -24,8 +24,7 @@ namespace ECommerceAppBackend.Services.EmailSender
                 using (var client = new SmtpClient())
                 {
                     client.ServerCertificateValidationCallback =
-                        (s, c, h, e) => true; // Ignoruje certyfikat SSL (opcjonalnie)
-
+                        (s, c, h, e) => true;
                     await client.ConnectAsync("smtp.poczta.onet.pl", 465, true);
                     await client.AuthenticateAsync("instrumenthero@op.pl", "Haslo123!");
                     await client.SendAsync(message);
@@ -35,7 +34,7 @@ namespace ECommerceAppBackend.Services.EmailSender
             catch (Exception ex)
             {
                 Console.WriteLine($"Failed to send e-mail: {ex.Message}");
-                throw; // Rzucenie wyjątku dla obsługi na wyższym poziomie
+                throw;
             }
         }
     }
