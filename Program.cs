@@ -1,9 +1,11 @@
 using System.Text;
 using ECommerceAppBackend.Controllers;
 using ECommerceAppBackend.Data;
+using ECommerceAppBackend.DTO;
 using ECommerceAppBackend.Repositories.Items;
 using ECommerceAppBackend.Repositories.User;
 using ECommerceAppBackend.Services.EmailSender;
+using ECommerceAppBackend.Services.JWT;
 using ECommerceAppBackend.Services.Register;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -16,12 +18,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 //Custom services
+
+builder.Services.AddSingleton<SmtpOptionsPoco>();
 builder.Services.AddScoped<AppDbContext>();
 builder.Services.AddScoped<IItemsRepository, ItemsRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<RegisterService>();
 builder.Services.AddScoped<PasswordService>();
 builder.Services.AddScoped<RegisterController>();
+builder.Services.AddScoped<JwtTokenService>();
 builder.Services.AddTransient<EmailSender>();
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>

@@ -1,4 +1,5 @@
-﻿using ECommerceAppBackend.Models;
+﻿using ECommerceAppBackend.DTO;
+using ECommerceAppBackend.Models;
 using ECommerceAppBackend.Repositories.User;
 
 namespace ECommerceAppBackend.Services.Register
@@ -8,7 +9,6 @@ namespace ECommerceAppBackend.Services.Register
         private readonly IUserRepository _userRepository;
         private readonly PasswordService _passwordService;
         private readonly EmailSender.EmailSender _emailSender;
-
         public RegisterService(IUserRepository userRepository, PasswordService passwordService,
             EmailSender.EmailSender emailSender)
         {
@@ -16,24 +16,34 @@ namespace ECommerceAppBackend.Services.Register
             _passwordService = passwordService;
             _emailSender = emailSender;
         }
-
-        public async Task RegisterUser(UserModel user)
+        public async Task RegisterUser(UserRegistrationDto user)
         {
+
+            var userModel = MapUserRegistrationDtoToUserModel(user);
+
             var hashedPassword = PasswordCheckHash(user.Password);
             if (hashedPassword == string.Empty || !IsValidEmail(user.Email))
             {
                 Console.WriteLine("Error");
             }
-
-            await _emailSender.SendEmailAsync(user.Email);
-            user.Password = hashedPassword;
-            _userRepository.CreateNewUser(user);
+            userModel.Password = hashedPassword;
+            _userRepository.CreateNewUser(userModel);
+            await _emailSender.SendEmailAsync(user.Email, userModel.Id);
         }
 
+        private UserModel MapUserRegistrationDtoToUserModel(UserRegistrationDto user)
+        {
+            return new UserModel
+            {
+                Name = user.Name,
+                Email = user.Email,
+                Password = user.Password
+            };
+        }
         private string PasswordCheckHash(string password)
         {
             if (!(password.Length > 8 && password.Any(c => !char.IsLetterOrDigit(c))))
-                return string.Empty;
+                throw new FormatException("Invalid password format");
             var hashedPassword = _passwordService.HashPassword(password);
             return hashedPassword;
         }
@@ -49,8 +59,8 @@ namespace ECommerceAppBackend.Services.Register
 
             try
             {
-                var addr = new System.Net.Mail.MailAddress(email);
-                return addr.Address == trimmedEmail;
+                var address = new System.Net.Mail.MailAddress(email);
+                return address.Address == trimmedEmail;
             }
             catch
             {

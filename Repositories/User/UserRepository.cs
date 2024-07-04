@@ -11,6 +11,10 @@ public class UserRepository : IUserRepository
     {
         _context = context;
     }
+    public UserModel GetUserByEmail(string email)
+    {
+        return _context.Users.FirstOrDefault(x => x.Email == email)!;
+    }
 
     public IEnumerable<UserModel> GetAllUsers()
     {

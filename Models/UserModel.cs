@@ -12,5 +12,5 @@ public class UserModel
     public bool EmailConfirmed { get; set; } = false;
     public ShopCartModel? Cart { get; set; }
     public List<ShopCartModel>? CartHistoryList { get; set; }
-    public string? UserRole { get; set; }
+    public string UserRole { get; set; } = "user";
 }

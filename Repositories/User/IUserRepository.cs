@@ -7,4 +7,5 @@ public interface IUserRepository
     IEnumerable<UserModel> GetAllUsers();
     UserModel GetUserById(int id);
     void CreateNewUser(UserModel user);
+    UserModel GetUserByEmail(string email);
 }
