@@ -31,7 +31,12 @@ public class UserRepository : IUserRepository
         var newUser = _context.Users.Add(user);
         Save();   
     }
-    
+    public void ConfirmEmail(string email)
+    {
+        var user = GetUserByEmail(email);
+        user.EmailConfirmed = true;
+        Save();
+    }
     private void Save()
     {
         _context.SaveChanges();

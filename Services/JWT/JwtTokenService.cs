@@ -6,6 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using ECommerceAppBackend.Repositories.User;
+using System.Security.Principal;
 
 namespace ECommerceAppBackend.Services.JWT;
 
@@ -42,7 +43,32 @@ public class JwtTokenService
             if (currentUser != null) return currentUser;
             return null;    
     }
+    public string GetUsernameFromToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var validationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"])),
+            ValidateIssuer = true,
+            ValidIssuer = _config["Jwt:Issuer"],
+            ValidateAudience = true,
+            ValidAudience = _config["Jwt:Audience"],
+            ClockSkew = TimeSpan.Zero
+        };
+        SecurityToken validatedToken;
 
-
-
+        try
+        {
+            var principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
+            var usernameClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
+            var username = usernameClaim?.Value;
+            return username;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Error while validating token: " + e.Message);
+            return null;
+        }
+    }
 }
